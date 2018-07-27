@@ -3,8 +3,7 @@ org 0x7C00
 main:
     call initSeg
     call loadDisk
-    cli
-    jmp $
+	jmp 0x9000
 
 ; init segment address
 initSeg:
@@ -22,6 +21,18 @@ loadDisk:
     mov si, loadDiskStr
     call printStr
     call newLine
+	xor bx, bx
+	xor ax, ax
+	mov ax, 0x900
+	mov es, ax
+	mov bx, 0
+	; ah=02H(function code) al= sectors to read count
+	mov ax, 0x0201
+	; ch=cylinder cl=sector
+	mov cx, 0x0002
+	; dh=head dl=drive
+	mov dx, 0
+	int 0x13
     ret
 
 newLine:
