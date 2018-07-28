@@ -5,23 +5,22 @@ org 0x9000
 ;TODO enable interrupt vector
 
 ;TODO enable second-level page memory management
-
-
-SegmentNone:	Descriptor	0,		0,				0
-SegmentData:	Descriptor	0,		0xFFFFFFFF,		SDA_FLAT_DATA
-SegmentCode:	Descriptor	0,		0xFFFFFFFF,		SDA_FLAT_CODE
-
-GdtPtr:
-	GdtPointer	SegmentNone+0x20000, $-SegmentNone
-
-main:
+entry:
+    call initMReg
 	call enableA20
 	call enablePM
-	call initReg
 
-	mov esi, enablePMStr
-	call printStr
-	jmp $
+;    mov si, enablePMStr
+;    call showStr
+
+    hlt
+    jmp $
+
+initMReg:
+    mov ax, cs
+    mov ds, ax
+    mov es, ax
+    ret
 
 ; Fast A20 Gate
 enableA20:	
@@ -35,41 +34,49 @@ enablePM:
 	cli
 	lgdt [GdtPtr]
 	mov eax, cr0
-	or eax, 1
+	or al, 1
 	mov cr0, eax
-	ret
+;    jmp dword 0x08:(pmEntry)
+    jmp SEL_FLAT_CODE:0 
 
-initReg:
-	mov ax, SDA_FLAT_DATA 
-	mov gs, ax
+SegmentNone:	Descriptor	0,		0,				0
+SegmentCode:	Descriptor	0,		0xFFFFF,		SDA_FLAT_CODE
+SegmentData:	Descriptor	0,		0xFFFFF,		SDA_FLAT_DATA
+
+GdtPtr:
+	GdtPointer	SegmentNone+0x20000, $-SegmentNone
+
+SEL_FLAT_DATA   equ SegmentData - SegmentNone
+SEL_FLAT_CODE   equ SegmentCode - SegmentNone
+
+[BITS 32]
+pmEntry:
+	mov ax, SEL_FLAT_DATA 
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
 	ret
 
-printStr:
-	push ebp
-	mov ebp,0xB8000 
-	mov ah, 0xF
-	.loop:
-		mov al, [esi]
-		inc esi
-		or esi, 0
-		jz end
-		cmp al, 10
-		je .10
-		mov [ebp], ax
-		inc ebp
-		inc ebp
-		jmp .loop
+showStr:
+    xor eax, eax
+    mov eax, 0xB8000
+    mov ebp, eax 
+    .loopShow:
+        xor ax, ax
+        mov al, [si]
+        xor al, 0
+        jz end 
+        inc si
 
-	.10:
-		add ebp, 160
-		jmp .loop
+        mov ah, 0x2a
+        mov word [ebp], ax
+        inc ebp 
+        inc ebp
+        jmp .loopShow
 
-	ret
 
 end:
-	jmp $
+    ret
 
 enablePMStr dw "Success into Protected mode", 0xA,0
+msg: db "This is print by 0XB8000",0
