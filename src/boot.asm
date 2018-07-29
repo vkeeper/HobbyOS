@@ -1,46 +1,28 @@
 org 0x7C00
 
 main:
-;    call clearScreen
-;    mov si, initSegStr
-;    call showStr
-    ;mov ax, 0x0003
-    ;int 10h
+    call clearScreen
     call initSeg
     call loadDisk
-    mov si, loadDiskOver
-    call printStr
-    call newLine
+    
+;    mov si, loadDiskOver
+;    call printStr
+;    call newLine
 	jmp 0x900:0
-
-showStr:
-    mov ax, 0xB000
-    mov es, ax
-
-    mov ax, 0x8000
-    mov bp ,ax 
-    loopShow:
-        xor ax, ax
-        mov ax, [si]
-        xor ax, 0
-        jz end 
-        inc si
-
-        mov [es:bp],ax
-        inc bp
-
-        mov ax, 0x002a
-        mov [es:bp], ax
-        inc bp
-
-        jmp loopShow
 
 
 clearScreen:
     mov al, 0x0
     mov ah, 0x06
     mov cx, 0
-    mov dx, 0x2580
+    mov dx, 0x1950
+    mov bh, 0x0F
+    int 0x10
+
+    mov ah, 0x02
+    mov dh,0x0
+    mov dl, 0x0
+    mov bh, 0x0
     int 0x10
     ret
 
@@ -93,7 +75,7 @@ printStr:
     xor al, 0
     jz end
     inc si
-    mov bx, 0x0F
+    mov bx, 0x000F
     mov ah, 0xE
     int 0x10
     jmp printStr

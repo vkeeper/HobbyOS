@@ -21,8 +21,8 @@ DPL_2   equ     0x40
 DPL_3   equ     0x60
 
 ; Segment Type
-TYPE_CODE  equ     0x0 ; defulat can execute
-TYPE_DATA  equ     0x8 ; default can read
+TYPE_CODE  equ     0x8 ; defulat can execute
+TYPE_DATA  equ     0x0 ; default can read
 
 ; access flag of type
 TYPE_A     equ     0x1
@@ -41,5 +41,14 @@ S_S     equ     0x10
 S_DB    equ     0x4000
 S_AVL   equ     0x1000
 
-SDA_FLAT_CODE   equ     TYPE_CODE|S_G|S_DB|S_P|S_S|TYPE_C|TYPE_R
-SDA_FLAT_DATA   equ     TYPE_DATA|S_G|S_DB|S_P|S_S|TYPE_W
+SDA_FLAT_CODE   equ     TYPE_CODE|S_DB|S_P|S_S|TYPE_C|TYPE_R|TYPE_A
+SDA_FLAT_DATA   equ     TYPE_DATA|S_DB|S_P|S_S|TYPE_W|TYPE_A
+
+; Detect Mem Address
+MemTableAddr    equ     0x50
+ARDSNum         equ     0x0
+ARDSAddrOffset  equ     ARDSNum + 0x4
+
+
+;memCheckError dw "detect memory map by INT 0x15 failed......",0xD, 0xA, 0
+
