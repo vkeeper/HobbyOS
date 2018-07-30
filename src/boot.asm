@@ -5,9 +5,6 @@ main:
     call initSeg
     call loadDisk
     
-;    mov si, loadDiskOver
-;    call printStr
-;    call newLine
 	jmp 0x900:0
 
 
@@ -19,6 +16,7 @@ clearScreen:
     mov bh, 0x0F
     int 0x10
 
+	; init cursor at top left
     mov ah, 0x02
     mov dh,0x0
     mov dl, 0x0
@@ -47,7 +45,7 @@ loadDisk:
 	mov es, ax
 	xor bx, bx
 	; ah=02H(function code) al= sectors to read count
-	mov ax, 0x0201
+	mov ax, 0x0202
 	; ch=cylinder cl=sector
 	mov cx, 0x0002
 	; dh=head dl=drive
