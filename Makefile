@@ -1,16 +1,27 @@
+CC				=	gcc
+CFLAGS			=	-fno-pie -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector -funsigned-char -finline-functions -finline-small-functions -findirect-inlining  -Wimplicit -o2 -m32 -c
+
+ASM				=	nasm
+ASMFLAGS		=	-i src/include/
+ASMLINKFLAGS	=   -i src/include/ -f elf32
+LD				=	ld
+LDFLAGS			= 	-m elf_i386 -static -Ttext 0x9000 -e _start	--oformat binary -T script/ldscript.lds
+
+TARGETDIR		= target/
+
 boot: src/boot.asm
-	nasm src/boot.asm -i src/ -o target/boot.bin
+	$(ASM)	$(ASMFLAGS)	-o target/boot.bin $< 
 
-kernel: src/kernel.asm
-	nasm -f elf32 src/kernel.asm -i src/ -o target/kernel.o
+kernel.o: src/kernel.asm
+	$(ASM) $(ASMLINKFLAGS) -o target/kernel.o $< 
 
-start.bin: src/start.c
-	gcc -m32 -fno-pie -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector \
-		-funsigned-char -finline-functions -finline-small-functions -findirect-inlining  -Wimplicit -o2 \
-		-c src/start.c -o target/start.o
-	ld -m elf_i386 -static -Ttext 0x9000 -e _start target/kernel.o target/start.o -o target/kernel.bin --oformat binary
+start.o: src/start.c
+	$(CC) $(CFLAGS) $< -o target/start.o
 
-img: boot kernel start.bin
+kernel.bin: start.o kernel.o
+	$(LD) $(LDFLAGS) target/kernel.o target/start.o -o target/kernel.bin
+
+img: boot kernel.bin
 	rm -rf sys.img
 	bximage -fd -size=1.44 -q sys.img
 	dd if=target/boot.bin of=sys.img 

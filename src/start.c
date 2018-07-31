@@ -1,8 +1,20 @@
-//char* dispPos = (char*)0xB8000;
-/*
+#include <stdlib.h>
+
+typedef struct{
+    u_int64_t base;
+    u_int64_t limit;
+    u_int32_t type;
+} ARDSItem;
+
+typedef struct{
+    u_int32_t len;
+    ARDSItem items[0];
+} BootParam;
+
+char* dispPos = (char*)0xB8000;
 void puts(char* str){
-    //unsigned int absolutePos = (80*4+0)*2;
-   // dispPos += absolutePos;
+    unsigned int absolutePos = (80*3+0)*2;
+    dispPos += absolutePos;
     unsigned char c;
     while((c=*(str++))!=0){
         if(c==13){
@@ -17,13 +29,12 @@ void puts(char* str){
     
 }
 
-void cstart(){
-    puts("\nCall C by NASM success");
-    for(;;){}
-}
-*/
-
 void cmain(){
-    char *vm = (char*)0xb8000;
-    *vm = 'X';
+    puts("\nget memory info from 0x500");
+    BootParam* bp = (BootParam*)0x500;
+    u_int32_t bplen = bp->len;
+    u_int64_t max = 0;
+
+    puts("\nsuccess save memory info");
 }
+
