@@ -1,23 +1,26 @@
 boot: src/boot.asm
-	nasm src/boot.asm -isrc/ -o target/boot.bin
+	nasm src/boot.asm -i src/ -o target/boot.bin
 
 kernel: src/kernel.asm
-	nasm src/kernel.asm -isrc/ -o target/kernel.bin
-	gcc -m32 -g -s -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector -funsigned-char -Wimplicit -o2 -c src/start.c -o target/start.o
-	ld -melf_i386 -e _start -Ttext 0x8000 -o target/start.l target/start.o
-	objcopy -O binary target/start.l target/start.bin
+	nasm -f elf32 src/kernel.asm -i src/ -o target/kernel.o
 
-sys: boot kernel
+start.bin: src/start.c
+	gcc -m32 -fno-pie -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector \
+		-funsigned-char -finline-functions -finline-small-functions -findirect-inlining  -Wimplicit -o2 \
+		-c src/start.c -o target/start.o
+	ld -m elf_i386 -static -Ttext 0x9000 -e _start target/kernel.o target/start.o -o target/kernel.bin --oformat binary
+
+img: boot kernel start.bin
 	rm -rf sys.img
 	bximage -fd -size=1.44 -q sys.img
 	dd if=target/boot.bin of=sys.img 
 	dd if=target/kernel.bin of=sys.img seek=1 obs=512 
 
-qemu: sys
+qemu: img 
 	qemu-system-i386 sys.img
 
-bochs: sys
+bochs: img
 	bochs
 
 clean:
-	rm -rf target/*.o sys.img target/*.l target/*.bin
+	rm -rf target/*.o sys.img target/*.ld target/*.bin

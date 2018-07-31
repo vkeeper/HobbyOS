@@ -1,23 +1,22 @@
 SECTIONS
 {
-. = 0x0;
-.text : { *(.text*) }
-. = ALIGN(0x8);
-.data : { *(.data) }
-. = ALIGN(0x8);
+.text : { 
+    *(.text*) 
+}
+
+.data : {
+    *(.data) 
+}
+
 .rodata : {
 	*(.rodata*)
 }
-. = ALIGN(0x8);
+
 .bss : {
 	*(.bss)
 	*(COMMON)
 }
-. = ALIGN(0x8);
-.init_text : {
-	init_text_seg_start = . ;
-	*(.init_text)
-}
+
 .debug_info      0 : { *(.debug_info)  }
 .debug_line 0 : { *(.debug_line)  }
 .debug_abbrev   0 : { *(.debug_abbrev)}

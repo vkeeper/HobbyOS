@@ -5,7 +5,7 @@
     dw %2 & 0xFFFF
     dw %1 & 0xFFFF
     db (%1>>16) & 0xFF
-    dw (%3 & 0xF0FF)|((%2>>16) & 0x0F00)
+    dw (%3 & 0xF0FF)|((%2>>8) & 0x0F00)
     db (%1>>24) & 0xFF
 %endmacro
 

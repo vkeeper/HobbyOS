@@ -1,4 +1,4 @@
-org 0x9000
+;org 0x9000
 
 %include "pm.inc"
 
@@ -87,6 +87,7 @@ SEL_VIDEO       equ SegmentVideo- SegmentNone
 
 
 [BITS 32]
+[section .text]
 %include "lib32.inc"
 
 pmEntry:
@@ -95,16 +96,17 @@ pmEntry:
     mov esi, enablePMStr 
 	mov edi, (80*2+0)*2
     call printByGS
-
-
 ;--------------------------
-	;call SEL_FLAT_CODE:0x8000
+	extern cmain
+	call cmain
+;	call SEL_FLAT_CODE:0x10000
 ;--------------------------
 
 	call enablePaging
 	mov edi, (80*3+0)*2
 	mov esi, enablePageStr
 	call printByGS
+	hlt
 
 initReg:
 	mov ax, SEL_FLAT_DATA 

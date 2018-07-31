@@ -1,5 +1,5 @@
-char* dispPos = (char*)0xB8000;
-
+//char* dispPos = (char*)0xB8000;
+/*
 void puts(char* str){
     //unsigned int absolutePos = (80*4+0)*2;
    // dispPos += absolutePos;
@@ -20,4 +20,10 @@ void puts(char* str){
 void cstart(){
     puts("\nCall C by NASM success");
     for(;;){}
+}
+*/
+
+void cmain(){
+    char *vm = (char*)0xb8000;
+    *vm = 'X';
 }

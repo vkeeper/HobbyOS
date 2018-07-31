@@ -3,8 +3,7 @@ org 0x7C00
 main:
     call clearScreen
     call initSeg
-    call loadDisk
-    
+    call loadDisk    
 	jmp 0x900:0
 
 
@@ -26,7 +25,7 @@ clearScreen:
 
 ; init segment address
 initSeg:
-    mov si,initSegStr
+    mov  si, initSegStr
     call printStr
     call newLine
 
