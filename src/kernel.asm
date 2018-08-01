@@ -1,15 +1,11 @@
-;org 0x9000
-
 %include "pm.inc"
 
-;TODO enable interrupt vector
-
-;TODO enable second-level page memory management
 [BITS 16]
 entry:
     call probeMem
 	call enableA20
 	call enablePM
+    jmp dword SEL_FLAT_CODE:pmEntry
 
 %include "lib16.inc"
 
@@ -25,7 +21,6 @@ probeMem:
     mov dword [es:ARDSNum], 0
     mov ebx, 0
     .loop:
-        ; This is ASCII: "SMAP"
         mov edx, 0x534D4150
         mov eax, 0xE820
         mov ecx, 20
@@ -33,12 +28,12 @@ probeMem:
         jc .fail
         add di, 20
         inc dword [es:ARDSNum]
-        or ebx, ebx
+        or  ebx, ebx
         jnz .loop
         jmp .ok
 
     .fail:
-        mov si, memCheckError
+        mov  si, memCheckError
         call printByInt10
         cli
         hlt
@@ -63,13 +58,13 @@ enablePM:
     add eax, SegmentNone
     mov dword [GdtPtr+2], eax
 	lgdt [GdtPtr]
+	cli
 
 	; enable protected mode
-	cli
 	mov eax, cr0
-	or al, 1
+	or  al, 1
 	mov cr0, eax
-    jmp dword SEL_FLAT_CODE:pmEntry
+	ret
 
 ; init segment descriptors
 SegmentNone:	Descriptor	0,		0,				0
@@ -88,24 +83,16 @@ SEL_VIDEO       equ SegmentVideo- SegmentNone
 
 [BITS 32]
 [section .text]
+
 %include "lib32.inc"
+extern cmain
 
 pmEntry:
     call initReg
-
-    mov esi, enablePMStr 
-	mov edi, (80*2+0)*2
-    call printByGS
 ;--------------------------
-	extern cmain
 	call cmain
-;	call SEL_FLAT_CODE:0x10000
 ;--------------------------
-
 	call enablePaging
-	mov edi, (80*3+0)*2
-	mov esi, enablePageStr
-	call printByGS
 	hlt
 
 initReg:
@@ -115,6 +102,10 @@ initReg:
     mov ss, ax
     mov ax, SEL_VIDEO
     mov gs, ax
+	; print message
+    mov esi, enablePMStr 
+	mov edi, (80*2+0)*2
+    call printByGS
     ret
 
 ; directory:table = 1:1
@@ -152,11 +143,12 @@ enablePaging:
 	mov eax, cr0
 	or eax, 0x80000000
 	mov cr0, eax
+	; print at 4th line
+	mov edi, (80*3+0)*2
+	mov esi, enablePageStr
+	call printByGS
 	ret
 
-
-enablePMStr: dw "Success enable Protected mode",0xA,0
-enablePageStr: dw "Success enable Paging",0xA,0
+enablePMStr: dw "Success enable Protected mode",0
+enablePageStr: dw "Success enable Paging",0
 memCheckError: dw "Detect memory error happend",0
-
-
