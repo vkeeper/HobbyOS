@@ -1,5 +1,5 @@
 CC				=	gcc
-CFLAGS			=	-fno-pie -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector -funsigned-char -finline-functions -finline-small-functions -findirect-inlining  -Wimplicit -o2 -m32 -c
+CFLAGS			=	-I src/include/ -fno-pie -ffreestanding -fno-builtin -fno-leading-underscore -fno-stack-protector -funsigned-char -finline-functions -finline-small-functions -findirect-inlining  -Wimplicit -o2 -m32 -c
 
 ASM				=	nasm
 ASMFLAGS		=	-i src/include/

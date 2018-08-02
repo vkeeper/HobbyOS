@@ -93,7 +93,9 @@ enableIDT:
 	ret
 
 ;--------------------------init interrupt descriptors -------------
-IDTTable:	GateDescriptor	SEL_FLAT_CODE,	int0funcAddr,	IDT_TYPE_INT|IDT_P
+IDTTable:	
+GateDescriptor	SEL_FLAT_CODE,	int0funcAddr,	IDT_TYPE_INT|IDT_P
+
 IdtPtr:	dw $-IDTTable-1
 		dd 0
 
@@ -104,14 +106,21 @@ IdtPtr:	dw $-IDTTable-1
 
 %include "lib32.inc"
 extern cmain
-
+global enablePaging
 pmEntry:
+    ; init protect mode segment register
     call initReg
+    mov esi, enablePMStr 
+	mov edi, 0 
+    call printByGS
+    ;enable page memory management
 	call enablePaging
-	int 0
+    call cmain
+    hlt 
+;	int 0
 
-int0func:
-int0funcAddr	equ	int0func-$$+0x9000
+int0func: 
+    int0funcAddr	equ	    int0func-$$+0x9000
 	call cmain
 	cli
 	hlt
@@ -123,10 +132,6 @@ initReg:
     mov ss, ax
     mov ax, SEL_VIDEO
     mov gs, ax
-	; print message
-    mov esi, enablePMStr 
-	mov edi, (80*2+0)*2
-    call printByGS
     ret
 
 ; directory:table = 1:1
@@ -164,11 +169,30 @@ enablePaging:
 	mov eax, cr0
 	or eax, 0x80000000
 	mov cr0, eax
-	; print at 4th line
-	mov edi, (80*3+0)*2
+
+	mov edi, 160 
 	mov esi, enablePageStr
 	call printByGS
 	ret
+
+global outByte
+global inByte
+
+outByte:
+    mov edx, [esp+4] ; port
+    mov al,  [esp+8] ; value
+    out dx, al
+    nop
+    nop
+    ret
+
+inByte:
+    mov edx, [esp+4] ;port
+    xor eax, eax
+    in  al, dx
+    nop
+    nop
+    ret
 
 [section .data]
 enablePMStr: dw "Success enable Protected mode",0

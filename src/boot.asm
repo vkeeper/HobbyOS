@@ -6,7 +6,6 @@ main:
     call loadDisk    
 	jmp 0x900:0
 
-
 clearScreen:
     mov al, 0x0
     mov ah, 0x06
@@ -25,10 +24,6 @@ clearScreen:
 
 ; init segment address
 initSeg:
-    mov  si, initSegStr
-    call printStr
-    call newLine
-
     xor ax, ax
     mov cx, ax
     mov dx, ax
@@ -36,9 +31,6 @@ initSeg:
     ret
 
 loadDisk:
-    mov si, loadDiskStr
-    call printStr
-    call newLine
 	xor ax, ax
 	mov ax, 0x900
 	mov es, ax
@@ -52,7 +44,6 @@ loadDisk:
 	int 0x13
     jc error
     ret
-
 
 error:
     mov si, errorMsg
@@ -80,9 +71,7 @@ printStr:
 end:
     ret
 
-initSegStr: dw "Begin to init segment address",0
 loadDiskStr: dw "Begin to load kernel from disk",0
-loadDiskOver: dw "load kernel from disk success",0
 errorMsg: dw "load disk error!",0
 newLineStr: db 0xD, 0xA
 

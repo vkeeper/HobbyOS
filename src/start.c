@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include "proto.h"
 
-char* dispPos = (char*)0xB8280;
+char* dispPos = (char*)0xB8140;
 
 u_int8_t digits[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -50,8 +51,7 @@ typedef struct{
     ARDSItem items[0];
 } BootParam;
 
-void cmain(){
-    
+void showMemoryInfo(){
     BootParam* bp = (BootParam*)0x500;
     u_int32_t bplen = bp->len;
     u_int64_t max = 0;
@@ -61,21 +61,18 @@ void cmain(){
     putc('\n');
     ARDSItem* item = bp->items;
     for(;bplen>0;bplen--,item++){
-        /*
         putInt(item->type);
-
         putc(' ');
+
         putInt(item->base);
-
         putc(' ');
-        putInt(item->limit);
 
-        putc('\r');
-        putc('\n');
-        */
+        putInt(item->limit);
+        puts("\r\n");
+
         switch(item->type){
             case 1: 
-                //puts("Avaliable\r\n"); 
+               //puts("Avaliable\r\n"); 
                 break;
             case 3:
                 //puts("ACPI\r\n");
@@ -96,8 +93,16 @@ void cmain(){
         max = item->base + item->limit;
     } 
     max /= 1024*1024;
-    puts("The size of memory:");
+    puts("Memory:");
     putInt(max);
-    puts("MB");
+    puts(" MB");
+
+}
+
+extern void inByte(u_int16_t port);
+extern void outByte(u_int16_t, u_int8_t value);
+
+void cmain(){
+    showMemoryInfo();    
 }
 
