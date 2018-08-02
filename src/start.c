@@ -61,6 +61,7 @@ void cmain(){
     putc('\n');
     ARDSItem* item = bp->items;
     for(;bplen>0;bplen--,item++){
+        /*
         putInt(item->type);
 
         putc(' ');
@@ -71,14 +72,25 @@ void cmain(){
 
         putc('\r');
         putc('\n');
+        */
         switch(item->type){
-            case 1: puts("Avaliable\r\n"); break;
-            case 3: puts("ACPI\r\n"); break;
-            case 4: puts("NVS"); break;
-            case 5: puts("Unusable\r\n");continue;
-            case 6: puts("Disable\r\n");continue;
+            case 1: 
+                //puts("Avaliable\r\n"); 
+                break;
+            case 3:
+                //puts("ACPI\r\n");
+                break;
+            case 4:
+                //puts("NVS");
+                break;
+            case 5:
+                //puts("Unusable\r\n");
+                continue;
+            case 6:
+                //puts("Disable\r\n");
+                continue;
             default:
-                puts("Reserved\r\n");
+                //puts("Reserved\r\n");
                 continue;
         }
         max = item->base + item->limit;

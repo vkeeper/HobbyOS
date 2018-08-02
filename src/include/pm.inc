@@ -53,4 +53,4 @@ ARDSAddrOffset  equ     ARDSNum + 0x4
 ;memCheckError dw "detect memory map by INT 0x15 failed......",0xD, 0xA, 0
 
 PDAddr  equ     0x2000
-PTAddr  equ     0x0
+PTAddr  equ     0x3000

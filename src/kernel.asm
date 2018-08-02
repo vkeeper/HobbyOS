@@ -5,6 +5,7 @@ entry:
     call probeMem
 	call enableA20
 	call enablePM
+	call enableIDT
     jmp dword SEL_FLAT_CODE:pmEntry
 
 %include "lib16.inc"
@@ -66,7 +67,7 @@ enablePM:
 	mov cr0, eax
 	ret
 
-; init segment descriptors
+; -------------------- init segment descriptors -----------------
 SegmentNone:	Descriptor	0,		0,				0
 SegmentCode:	Descriptor	0,		0xFFFFF,		SDA_FLAT_CODE
 SegmentData:	Descriptor	0,		0xFFFFF,		SDA_FLAT_DATA
@@ -80,6 +81,23 @@ SEL_FLAT_DATA   equ SegmentData - SegmentNone
 SEL_FLAT_CODE   equ SegmentCode - SegmentNone
 SEL_VIDEO       equ SegmentVideo- SegmentNone
 
+;-----------------------------------------------------------------
+
+%include "idt.inc"
+enableIDT:
+	mov ax, ds
+	shl ax, 4
+	add eax, IDTTable
+	mov dword [IdtPtr+2], eax
+	lidt [IdtPtr]
+	ret
+
+;--------------------------init interrupt descriptors -------------
+IDTTable:	GateDescriptor	SEL_FLAT_CODE,	int0funcAddr,	IDT_TYPE_INT|IDT_P
+IdtPtr:	dw $-IDTTable-1
+		dd 0
+
+;-----------------------------------------------------------------
 
 [BITS 32]
 [section .text]
@@ -89,10 +107,13 @@ extern cmain
 
 pmEntry:
     call initReg
-;--------------------------
-	call cmain
-;--------------------------
 	call enablePaging
+	int 0
+
+int0func:
+int0funcAddr	equ	int0func-$$+0x9000
+	call cmain
+	cli
 	hlt
 
 initReg:
@@ -149,6 +170,7 @@ enablePaging:
 	call printByGS
 	ret
 
+[section .data]
 enablePMStr: dw "Success enable Protected mode",0
 enablePageStr: dw "Success enable Paging",0
 memCheckError: dw "Detect memory error happend",0

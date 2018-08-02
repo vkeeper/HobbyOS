@@ -44,7 +44,7 @@ loadDisk:
 	mov es, ax
 	xor bx, bx
 	; ah=02H(function code) al= sectors to read count
-	mov ax, 0x0203
+	mov ax, 0x0204
 	; ch=cylinder cl=sector
 	mov cx, 0x0002
 	; dh=head dl=drive
