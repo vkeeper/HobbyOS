@@ -1,21 +1,14 @@
-%include "pm.inc"
+%include "protect.inc"
 
 [BITS 16]
-entry:
-    call probeMem
-	call enableA20
-	call enablePM
-	call enableIDT
-    jmp dword SEL_FLAT_CODE:pmEntry
+kernelEntry:
+    call probeMemory
+    call enablePM 
+    jmp dword SelectorCode32:Seg32Entry
 
-%include "lib16.inc"
-
-; detect memory
-; save memory map at 0x500
-probeMem:
+probeMemory:
     xor cx, cx
     xor dx, dx
-
     mov ax, MemTableAddr
     mov es, ax
     mov di, ARDSAddrOffset
@@ -29,9 +22,9 @@ probeMem:
         jc .fail
         add di, 20
         inc dword [es:ARDSNum]
-        or  ebx, ebx
+        or  ebx, ebx 
         jnz .loop
-        jmp .ok
+        jmp .ok 
 
     .fail:
         mov  si, memCheckError
@@ -41,160 +34,119 @@ probeMem:
     .ok:
         ret
 
-
-; Fast A20 Gate
-enableA20:	
-	in al, 0x92
-	or al, 2
-	out 0x92, al
-	ret
-
-; enable protected mode
 enablePM:
+    ; fast enable A20
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+   
+    ; init selector address
+    xor eax, eax
+    mov ax,  cs
+    shl ax,  0x4
+    add eax, LabelStack
+    mov word [LabelDescStack+2], ax
+    mov byte [LabelDescStack+4], al
+    mov byte [LabelDescStack+7], ah
+
+    ; save gdt
     xor eax, eax
     mov ax, ds
-
-	; init and save GdtPtr
     shl ax, 4
-    add eax, SegmentNone
+    add eax, LabelGDT
     mov dword [GdtPtr+2], eax
-	lgdt [GdtPtr]
-	cli
+    lgdt [GdtPtr]
+    
+    ; enable protectd mode
+    cli
+    mov eax, cr0
+    or  eax, 1
+    mov cr0, eax
+    ret
 
-	; enable protected mode
-	mov eax, cr0
-	or  al, 1
-	mov cr0, eax
-	ret
+printByInt10:
+     mov al, [si]
+     xor al, 0
+     jz printByInt10End
+     inc si
+     mov bx, 0x000F
+     mov ah, 0xE 
+     int 0x10
+     jmp printByInt10
 
-; -------------------- init segment descriptors -----------------
-SegmentNone:	Descriptor	0,		0,				0
-SegmentCode:	Descriptor	0,		0xFFFFF,		SDA_FLAT_CODE
-SegmentData:	Descriptor	0,		0xFFFFF,		SDA_FLAT_DATA
-SegmentVideo:   Descriptor  0xB8000,0x0FFFF,        SDA_FLAT_DATA
+printByInt10End:
+    ret
 
-GdtPtr: dw  $-SegmentNone-1
+memCheckError: dw "check memory map error!",0
+
+;------------------------- Global Descriptor Init ------------------------
+LabelGDT:       Descriptor  0,          0,              0
+LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
+LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW
+LabelDescStack:     Descriptor  0,          TopOfStack,     DA_32|DA_DRW
+LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
+
+GdtPtr: dw  $-LabelGDT-1
         dd  0
 
-; init segment selectors
-SEL_FLAT_DATA   equ SegmentData - SegmentNone
-SEL_FLAT_CODE   equ SegmentCode - SegmentNone
-SEL_VIDEO       equ SegmentVideo- SegmentNone
-
-;-----------------------------------------------------------------
-
-%include "idt.inc"
-enableIDT:
-	mov ax, ds
-	shl ax, 4
-	add eax, IDTTable
-	mov dword [IdtPtr+2], eax
-	lidt [IdtPtr]
-	ret
-
-;--------------------------init interrupt descriptors -------------
-IDTTable:	
-GateDescriptor	SEL_FLAT_CODE,	int0funcAddr,	IDT_TYPE_INT|IDT_P
-
-IdtPtr:	dw $-IDTTable-1
-		dd 0
-
-;-----------------------------------------------------------------
+SelectorCode32  equ     LabelDescCode32 - LabelGDT
+SelectorData    equ     LabelDescData   - LabelGDT
+SelectorStack   equ     LabelDescStack  - LabelGDT
+SelectorVideo   equ     LabelDescVideo  - LabelGDT
+;---------------------------------------------------------------------------
 
 [BITS 32]
-[section .text]
+LabelStack:
+    times 512 db 0
 
-%include "lib32.inc"
-extern cmain
-global enablePaging
-pmEntry:
-    ; init protect mode segment register
-    call initReg
-    mov esi, enablePMStr 
-	mov edi, 0 
-    call printByGS
-    ;enable page memory management
-	call enablePaging
-    call cmain
-    hlt 
-;	int 0
+TopOfStack  equ     $-LabelStack-1
 
-int0func: 
-    int0funcAddr	equ	    int0func-$$+0x9000
-	call cmain
-	cli
-	hlt
 
-initReg:
-	mov ax, SEL_FLAT_DATA 
-	mov ds, ax
-	mov es, ax
-    mov ss, ax
-    mov ax, SEL_VIDEO
+[SECTION .text]
+[BITS 32]
+Seg32Entry:
+    ; --- init segment register ---
+    mov ax, SelectorData
+    mov ds, ax
+    mov es, ax
+    mov ax, SelectorVideo
     mov gs, ax
-    ret
+    mov ax, SelectorStack
+    mov ss, ax
+    mov esp,TopOfStack
+    
+    ; --- enable page memory management ---
+    enablePaging:
+        mov ebx, PTAddr
+        mov eax, 0x3
+        mov ecx, 1024
+        .doPT:
+            mov [ebx], eax
+            add ebx, 4
+            add eax, 0x1000
+            loop .doPT
 
-; directory:table = 1:1
-enablePaging:
-	;4*1024 byte page directory
-	mov ebx, PTAddr
-	mov eax, 0x3
-	mov ecx, 1024
-	.loop1:
-		mov [ebx], eax
-		add	ebx, 4
-		add eax, 0x1000
-		loop .loop1
+        xor ebx, ebx
+        mov ebx, PDAddr
+        mov eax, PTAddr + 0x3
+        mov ecx, 1024
+        .doPD:
+            mov [ebx], eax
+            add ebx, 4
+            loop .doPD
 
-	;4*1024 byte page table
-	xor ebx, ebx
-	mov ebx, PDAddr
-	mov eax, PTAddr+0x3
-	mov ecx, 1024
-	.loop2:
-		add [ebx], eax
-		add ebx, 4
-		loop .loop2
-	
-	;save page table address
-	mov eax, PDAddr
-	mov cr3, eax
-	
-	; use 4M Page
-	mov eax, cr4
-	or eax, 10000b
-	mov cr4, eax
+        mov eax, PDAddr
+        mov cr3, eax
 
-	; enable paging
-	mov eax, cr0
-	or eax, 0x80000000
-	mov cr0, eax
+        mov eax, cr4
+        or  eax, 10000b
+        mov cr4, eax
 
-	mov edi, 160 
-	mov esi, enablePageStr
-	call printByGS
-	ret
+        mov eax, cr0
+        or  eax, 0x80000000
+        mov cr0, eax
+    ; --- call c function ---
+    extern cmain
+    call cmain
+    hlt
 
-global outByte
-global inByte
-
-outByte:
-    mov edx, [esp+4] ; port
-    mov al,  [esp+8] ; value
-    out dx, al
-    nop
-    nop
-    ret
-
-inByte:
-    mov edx, [esp+4] ;port
-    xor eax, eax
-    in  al, dx
-    nop
-    nop
-    ret
-
-[section .data]
-enablePMStr: dw "Success enable Protected mode",0
-enablePageStr: dw "Success enable Paging",0
-memCheckError: dw "Detect memory error happend",0
