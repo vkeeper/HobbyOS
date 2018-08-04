@@ -42,10 +42,11 @@ enablePM:
    
     ; init selector address
     xor eax, eax
-    mov ax,  cs
-    shl ax,  0x4
+    mov ax, ds 
+    shl eax,  0x4
     add eax, LabelStack
     mov word [LabelDescStack+2], ax
+    shr eax, 16
     mov byte [LabelDescStack+4], al
     mov byte [LabelDescStack+7], ah
 
@@ -82,7 +83,7 @@ memCheckError: dw "check memory map error!",0
 ;------------------------- Global Descriptor Init ------------------------
 LabelGDT:       Descriptor  0,          0,              0
 LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
-LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW
+LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW|DA_DPL0
 LabelDescStack:     Descriptor  0,          TopOfStack,     DA_32|DA_DRW
 LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
 
@@ -115,38 +116,40 @@ Seg32Entry:
     mov ss, ax
     mov esp,TopOfStack
     
-    ; --- enable page memory management ---
-    enablePaging:
-        mov ebx, PTAddr
-        mov eax, 0x3
-        mov ecx, 1024
-        .doPT:
-            mov [ebx], eax
-            add ebx, 4
-            add eax, 0x1000
-            loop .doPT
-
-        xor ebx, ebx
-        mov ebx, PDAddr
-        mov eax, PTAddr + 0x3
-        mov ecx, 1024
-        .doPD:
-            mov [ebx], eax
-            add ebx, 4
-            loop .doPD
-
-        mov eax, PDAddr
-        mov cr3, eax
-
-        mov eax, cr4
-        or  eax, 10000b
-        mov cr4, eax
-
-        mov eax, cr0
-        or  eax, 0x80000000
-        mov cr0, eax
+    call enablePaging
     ; --- call c function ---
     extern cmain
     call cmain
     hlt
 
+; --- enable page memory management ---
+enablePaging:
+    mov ebx, PTAddr
+    mov eax, 0x3
+    mov ecx, 1024
+    .doPT:
+        mov [ebx], eax
+        add ebx, 4
+        add eax, 0x1000
+        loop .doPT
+
+    xor ebx, ebx
+    mov ebx, PDAddr
+    mov eax, PTAddr + 0x3
+    mov ecx, 1024
+    .doPD:
+        mov [ebx], eax
+        add ebx, 4
+        loop .doPD
+
+    mov eax, PDAddr
+    mov cr3, eax
+
+    mov eax, cr4
+    or  eax, 10000b
+    mov cr4, eax
+
+    mov eax, cr0
+    or  eax, 0x80000000
+    mov cr0, eax
+    ret
