@@ -117,7 +117,6 @@ Seg32Entry:
     mov esp,TopOfStack
     
     call enablePaging
-    ; --- call c function ---
     extern cmain
     call cmain
     hlt
