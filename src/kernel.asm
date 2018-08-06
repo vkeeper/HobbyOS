@@ -40,16 +40,6 @@ enablePM:
     or al, 2
     out 0x92, al
    
-    ; init selector address
-    xor eax, eax
-    mov ax, ds 
-    shl eax,  0x4
-    add eax, LabelStack
-    mov word [LabelDescStack+2], ax
-    shr eax, 16
-    mov byte [LabelDescStack+4], al
-    mov byte [LabelDescStack+7], ah
-
     ; save gdt
     xor eax, eax
     mov ax, ds
@@ -81,10 +71,9 @@ printByInt10End:
 memCheckError: dw "check memory map error!",0
 
 ;------------------------- Global Descriptor Init ------------------------
-LabelGDT:       Descriptor  0,          0,              0
-LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
-LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW|DA_DPL0
-LabelDescStack:     Descriptor  0,          TopOfStack,     DA_32|DA_DRW
+LabelGDT:			Descriptor  0,          0,              0
+LabelDescCode32:    Descriptor  0,          0xFFFFFFFF,        DA_32|DA_C
+LabelDescData:      Descriptor  0,          0xFFFFFFFF,        DA_32|DA_DRW|DA_DPL0
 LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
 
 GdtPtr: dw  $-LabelGDT-1
@@ -92,15 +81,8 @@ GdtPtr: dw  $-LabelGDT-1
 
 SelectorCode32  equ     LabelDescCode32 - LabelGDT
 SelectorData    equ     LabelDescData   - LabelGDT
-SelectorStack   equ     LabelDescStack  - LabelGDT
 SelectorVideo   equ     LabelDescVideo  - LabelGDT
 ;---------------------------------------------------------------------------
-
-[BITS 32]
-LabelStack:
-    times 512 db 0
-
-TopOfStack  equ     $-LabelStack-1
 
 
 [SECTION .text]
@@ -110,45 +92,42 @@ Seg32Entry:
     mov ax, SelectorData
     mov ds, ax
     mov es, ax
+    mov ss, ax
     mov ax, SelectorVideo
     mov gs, ax
-    mov ax, SelectorStack
-    mov ss, ax
-    mov esp,TopOfStack
     
-    call enablePaging
+	mov ebp, 0x80000
+	mov esp, 0x9FBFF
+
     extern cmain
     call cmain
     hlt
 
-; --- enable page memory management ---
-enablePaging:
-    mov ebx, PTAddr
-    mov eax, 0x3
-    mov ecx, 1024
-    .doPT:
-        mov [ebx], eax
-        add ebx, 4
-        add eax, 0x1000
-        loop .doPT
+global read_cr0
+global write_cr0
+global read_cr3
+global write_cr3
 
-    xor ebx, ebx
-    mov ebx, PDAddr
-    mov eax, PTAddr + 0x3
-    mov ecx, 1024
-    .doPD:
-        mov [ebx], eax
-        add ebx, 4
-        loop .doPD
+read_cr0:
+	mov eax, cr0
+	retn
 
-    mov eax, PDAddr
-    mov cr3, eax
+write_cr0:
+	push ebp
+	mov ebp, esp
+	mov eax, [ebp+8]
+	mov cr0, eax
+	pop ebp
+	retn
 
-    mov eax, cr4
-    or  eax, 10000b
-    mov cr4, eax
+read_cr3:
+	mov eax, cr3
+	retn
 
-    mov eax, cr0
-    or  eax, 0x80000000
-    mov cr0, eax
-    ret
+write_cr3:
+	push ebp
+	mov ebp, esp
+	mov eax, [ebp+8]
+	mov cr3, eax
+	pop ebp
+	retn

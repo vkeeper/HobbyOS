@@ -1,7 +1,7 @@
 #include <stdlib.h>
-#include "proto.h"
 
-char* dispPos = (char*)0xB8140;
+
+char* dispPos = (char*)0xB8000;
 
 u_int8_t digits[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -51,7 +51,7 @@ typedef struct{
     ARDSItem items[0];
 } BootParam;
 
-void showMemoryInfo(){
+u_int64_t getPhysicalMemory(){
     BootParam* bp = (BootParam*)0x500;
     u_int32_t bplen = bp->len;
     u_int64_t max = 0;
@@ -92,17 +92,45 @@ void showMemoryInfo(){
         }
         max = item->base + item->limit;
     } 
-    max /= 1024*1024;
     puts("Memory:");
-    putInt(max);
+    putInt(max/1024/1024);
     puts(" MB");
-
+    return max;
 }
 
-extern void inByte(u_int16_t port);
-extern void outByte(u_int16_t, u_int8_t value);
+void enablePaging(u_int64_t total){
+    u_int32_t pageCount = total / 4096;
+    puts("\r\ntotal page num ");
+    putInt(pageCount);
+
+    u_int32_t *pageDir =(u_int32_t *)0x2000;
+    u_int32_t *pageTable = (u_int32_t *)0x3000;
+    u_int32_t offset = 0;
+    u_int32_t i=0;
+    for(;i<1024;i++){
+        pageTable[i]=offset|3;
+        offset += 4096;
+    }
+
+    u_int32_t pageDirCount = pageCount/1024;
+    if(pageCount%1024!=0){
+        pageDirCount +=1;
+    }
+
+    pageDir[0]=pageTable;
+    pageDir[0]=pageDir[0]|3;
+    puts("\r\ntotal page dir ");
+    putInt(pageDirCount);
+    for(i=1;i<pageDirCount;i++){
+        pageDir[i]=0|2;
+    }
+    write_cr3(pageDir);
+    write_cr0(read_cr0()|0x80000000);
+    puts("\r\nenable page memory success");
+}
 
 void cmain(){
-    showMemoryInfo();    
+    u_int64_t mem = getPhysicalMemory();    
+    enablePaging(mem);
 }
 

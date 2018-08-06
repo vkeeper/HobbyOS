@@ -78,7 +78,5 @@ ARDSAddrOffset  equ     ARDSNum + 0x4
 ;--------------------------------------------------------
 ; paging memory management
 ;--------------------------------------------------------
-PDAddr  equ     0x2000
-PTAddr  equ     0x3000
-
-
+PDAddr  equ     0x7E00
+PTAddr  equ     0x8E00

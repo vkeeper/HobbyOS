@@ -5,7 +5,7 @@ ASM				=	nasm
 ASMFLAGS		=	-i src/include/
 ASMLINKFLAGS	=   -i src/include/ -f elf32
 LD				=	ld
-LDFLAGS			= 	-m elf_i386 -static -Ttext 0x9000 -e _start	--oformat binary -T script/ldscript.lds
+LDFLAGS			= 	-m elf_i386 -static -Ttext 0x9000 -e _start	--oformat binary -T script/link.ld
 
 TARGETDIR		= target/
 
