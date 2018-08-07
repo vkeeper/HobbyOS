@@ -92,7 +92,7 @@ u_int64_t getPhysicalMemory(){
         }
         max = item->base + item->limit;
     } 
-    puts("Memory:");
+    puts("Memory: 0x");
     putInt(max/1024/1024);
     puts(" MB");
     return max;
