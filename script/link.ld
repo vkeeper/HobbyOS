@@ -1,5 +1,7 @@
 SECTIONS
 {
+. = 0x9000;
+PROVIDE( kern_start = .);
 .text : { 
     *(.text*) 
 }
@@ -16,6 +18,15 @@ SECTIONS
 	*(.bss)
 	*(COMMON)
 }
+.stab :
+{
+    *(.stab)
+}
+
+.stabstr :
+{
+    *(.stabstr)
+}
 
 .debug_info      0 : { *(.debug_info)  }
 .debug_line 0 : { *(.debug_line)  }
@@ -26,5 +37,7 @@ SECTIONS
 .debug_range    0 : { *(.debug_range) }
 .debug_arrange    0 : { *(.debug_arrange) }
 /DISCARD/ : { *.* }
+
+PROVIDE( kern_end = .);
 }
 /* 紧凑内存结构 */

@@ -1,14 +1,17 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-void outb(u_int16_t port, u_int16_t value);
-u_int8_t inb(u_int16_t port);
-u_int16_t inw(u_int16_t port);
+#include <stdlib.h>
 
-#define PANIC(msg) panic(msg, __FILE__, __LINE__);
-#define ASSERT(b)((b)?(void)0:panice_assert(__FILE__, __LINE__, #b))
+typedef u_int8_t  u8;
+typedef u_int16_t u16;
+typedef u_int32_t u32;
+typedef u_int64_t u64;
 
-extern void panic(const char *msg, const char *file, u_int32_t line);
-extern void panice_assert(const char *file, u_int32_t line, const char * desc);
+void outb(u16 port, u8 value);
+
+u8 inb(u16 port);
+
+u16 inw(u16 port);
 
 #endif
