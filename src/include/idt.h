@@ -41,41 +41,37 @@ void register_interrupt_handler(u8 n, interrupt_handler_t h);
 
 void isr_handler(pt_regs_t *regs);
 
-void isr0(); // divide 0
-void isr1(); // debug error
-void isr2(); // nmi
-void isr3(); // break point error
-void isr4(); // overheap
-void isr5(); // index out 
-void isr6(); // not defined
-void isr7(); // device error
-void isr8(); // double error
-void isr9(); // 
-void isr10(); // invalid tss
-void isr11(); // segment fault
-void isr12(); // stack error
-void isr13(); // protect
-void isr14(); // page fault
-void isr15(); // remain
-void isr16(); // float handler error
-void isr17(); // align check
-void isr18(); // machine check
-void isr19(); // float error
-
-// remain
-void isr20();
-void isr21();
-void isr22();
-void isr23();
-void isr24();
-void isr25();
-void isr26();
-void isr27();
-void isr28();
-void isr29();
-void isr30();
-void isr31();
-
-void isr255();
+extern void isr0 ();
+extern void isr1 ();
+extern void isr2 ();
+extern void isr3 ();
+extern void isr4 ();
+extern void isr5 ();
+extern void isr6 ();
+extern void isr7 ();
+extern void isr8 ();
+extern void isr9 ();
+extern void isr10();
+extern void isr11();
+extern void isr12();
+extern void isr13();
+extern void isr14();
+extern void isr15();
+extern void isr16();
+extern void isr17();
+extern void isr18();
+extern void isr19();
+extern void isr20();
+extern void isr21();
+extern void isr22();
+extern void isr23();
+extern void isr24();
+extern void isr25();
+extern void isr26();
+extern void isr27();
+extern void isr28();
+extern void isr29();
+extern void isr30();
+extern void isr31();
 
 #endif

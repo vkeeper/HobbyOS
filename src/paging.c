@@ -3,7 +3,11 @@
 #include "mm.h"
 
 u32 *frames; // frame pointer
+
 u32 nframes; // num of frame 
+
+page_directory_t *kernel_directory = 0;
+page_directory_t *current_directory = 0;
 
 #define NO_FRAME = -1
 #define INDEX_OF(a) (a/32)

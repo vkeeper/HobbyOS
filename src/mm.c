@@ -1,6 +1,7 @@
 #include "common.h"
 #include "mm.h"
 
+u32 placement_address = (u32)&kern_end;
 
 u32 kmalloc(u32 size){
     u32 temp = placement_address;

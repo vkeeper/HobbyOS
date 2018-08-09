@@ -9,11 +9,7 @@ LDFLAGS			= 	-m elf_i386 -static -e _start	--oformat binary -T script/link.ld
 
 TARGETDIR		= target/
 
-C_SOURCES = $(shell find . -name "*.c")
-C_OBJECTS = $(patsubst %.c %.o, $(C_SOURCES))
-
-S_SOURCES = $(shell find . -name "*.asm")
-S_OBJECTS = $(patsubst %.asm %.o, $(S_SOURCES))
+C_OBJECTS		=	target/start.o target/common.o target/mm.o target/print.o
 
 boot: src/boot.asm
 	$(ASM)	$(ASMFLAGS)	-o target/boot.bin $< 
@@ -24,16 +20,19 @@ kernel.o: src/kernel.asm
 print.o: src/print.c
 	$(CC) $(CFLAGS) $< -o target/print.o
 	
+mm.o: src/mm.c
+	$(CC) $(CFLAGS) $< -o target/mm.o
+
 common.o: src/common.c
 	$(CC) $(CFLAGS) $< -o target/common.o
 
 start.o: src/start.c
 	$(CC) $(CFLAGS) $< -o target/start.o
 
-kernel.bin: start.o kernel.o print.o common.o
-	$(LD) $(LDFLAGS) target/kernel.o  target/start.o target/common.o target/print.o -o target/kernel.bin
+kernel: kernel.o start.o print.o common.o mm.o
+	$(LD) $(LDFLAGS) target/kernel.o  $(C_OBJECTS) -o target/kernel.bin
 
-img: boot kernel.bin
+img: boot kernel
 	rm -rf sys.img
 	bximage -fd -size=1.44 -q sys.img
 	dd if=target/boot.bin of=sys.img 

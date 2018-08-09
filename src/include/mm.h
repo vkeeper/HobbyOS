@@ -3,8 +3,6 @@
 
 #include "common.h"
 
-u32 placement_address = 0;
-
 u32 kmalloc_a(u32 size);
 
 u32 kmalloc_p(u32 size, u32 align);
