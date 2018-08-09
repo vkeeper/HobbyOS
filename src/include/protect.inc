@@ -17,7 +17,7 @@
 ;-------------------------------------------------------
 ; selector,offset,dcount,attr
 ;-------------------------------------------------------
-%macro GateDescriptor 3
+%macro GateDescriptor 4
     dw (%2 & 0xFFFF)
     dw %1
     dw (%3&0x1F)|((%4<<8)&0xFF00)
@@ -78,5 +78,5 @@ ARDSAddrOffset  equ     ARDSNum + 0x4
 ;--------------------------------------------------------
 ; paging memory management
 ;--------------------------------------------------------
-PDAddr  equ     0x7E00
-PTAddr  equ     0x8E00
+PDAddr  equ     0x20000
+PTAddr  equ     0x21000

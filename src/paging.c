@@ -1,5 +1,6 @@
 #include "paging.h"
 #include "common.h"
+#include "mm.h"
 
 u32 *frames; // frame pointer
 u32 nframes; // num of frame 

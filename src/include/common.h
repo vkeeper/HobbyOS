@@ -14,4 +14,15 @@ u8 inb(u16 port);
 
 u16 inw(u16 port);
 
+
+void memset(u8 *dest, u8 val, u32 len);
+
+void memcpy(u8 *dest, const u8 *src, u32 len);
+
+int strcmp(char *str1, char *str2);
+
+void strcpy(char *dest, const char *src);
+
+char *strcat(char *dest, const char *src);
+
 #endif

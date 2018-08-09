@@ -59,7 +59,7 @@ u64 getPhysicalMemory(){
     puts(" MB");
     return max;
 }
-
+/**
 void enablePaging(u64 total){
     u32 pageCount = total / 4096;
     puts("\r\ntotal page num ");
@@ -90,9 +90,9 @@ void enablePaging(u64 total){
     write_cr0(read_cr0()|0x80000000);
     puts("\r\nenable page memory success");
 }
-
+*/
 void cmain(){
     u64 mem = getPhysicalMemory();    
-    enablePaging(mem);
+   // enablePaging(mem);
 }
 
