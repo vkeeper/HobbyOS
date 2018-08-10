@@ -2,21 +2,19 @@
 #define IDT_H
 
 typedef struct idt_entry{
-
     u16 base_low;
     u16 selector;
     u8 zeros;
     u8 flags;
     u16 base_high;
-} idt_entry_t;
+} __attribute__((packed)) idt_entry_t; 
 
 typedef struct idt_ptr{
-
     u16 limit;
     u32 base;
-} idt_ptr_t;
+}__attribute__((packed)) idt_ptr_t; 
 
-typedef pt_regs {
+typedef struct pt_regs {
     u32 ds;
     u32 edi;
     u32 esi;
@@ -40,6 +38,8 @@ typedef void (*interrupt_handler_t)(pt_regs_t *);
 void register_interrupt_handler(u8 n, interrupt_handler_t h);
 
 void isr_handler(pt_regs_t *regs);
+
+void init_idt();
 
 extern void isr0 ();
 extern void isr1 ();
@@ -73,5 +73,7 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
+void isr255();
 
 #endif

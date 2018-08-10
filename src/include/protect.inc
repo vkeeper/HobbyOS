@@ -14,15 +14,6 @@
     dd   %1
 %endmacro
 
-;-------------------------------------------------------
-; selector,offset,dcount,attr
-;-------------------------------------------------------
-%macro GateDescriptor 4
-    dw (%2 & 0xFFFF)
-    dw %1
-    dw (%3&0x1F)|((%4<<8)&0xFF00)
-    dw ((%2>>16)&0xFFFF)
-%endmacro
 
 ;--------------------------------------------------------
 ; Segment Descriptor Attribute
@@ -80,3 +71,4 @@ ARDSAddrOffset  equ     ARDSNum + 0x4
 ;--------------------------------------------------------
 PDAddr  equ     0x20000
 PTAddr  equ     0x21000
+

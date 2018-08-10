@@ -95,13 +95,46 @@ Seg32Entry:
     mov ss, ax
     mov ax, SelectorVideo
     mov gs, ax
-    
+
+    ; --- init stack --- 
 	mov ebp, 0x80000
 	mov esp, 0x9FBFF
 
     extern cmain
     call cmain
     hlt
+
+
+
+global idt_flush
+idt_flush:
+	mov eax, [esp+4]
+	lidt [eax]
+	mov esi, idtStr
+	mov edi, 0x0 
+	call printByGS
+	ret
+
+idtStr: db "success flush idt"
+;--------------------------------------------
+printByGS:
+    xor eax, eax 
+    mov ah, 0x0F
+    .loopShow:
+        mov byte al, [esi]
+        xor al, 0
+        jz printByGSEnd 
+        inc esi 
+ 
+        mov word [gs:edi], ax
+        inc edi 
+        inc edi 
+        jmp .loopShow
+
+printByGSEnd:
+    ret
+
+;--------------------------------------------
 
 global read_cr0
 global write_cr0

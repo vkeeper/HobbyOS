@@ -1,6 +1,7 @@
 #include "common.h"
 #include "print.h"
 #include "mm.h"
+#include "idt.h"
 
 // #pragma pack(1)
 typedef struct{
@@ -20,7 +21,7 @@ u64 getPhysicalMemory(){
     u64 max = 0;
     
     putInt(bplen);
-    puts('\r\n');
+    puts("\r\n");
     ARDSItem* item = bp->items;
     for(;bplen>0;bplen--,item++){
         putInt(item->type);
@@ -59,7 +60,7 @@ u64 getPhysicalMemory(){
     puts(" MB");
     return max;
 }
-
+/*
 void enablePaging(u64 total){
     u32 pageCount = total / 4096;
     puts("\r\ntotal page num ");
@@ -94,7 +95,7 @@ void enablePaging(u64 total){
     puts("\r\nkern_end:");
     putInt(kern_end);
 }
-
+*/
 
 void cmain(){
     u64 mem = getPhysicalMemory();    
@@ -112,6 +113,9 @@ void cmain(){
     while(word[i]!=0){
         putInt(word[i++]);
     }
-    enablePaging(mem);
+    //enablePaging(mem);
+    init_idt();
+    asm volatile ("int $0x3");
+    asm volatile ("int $0x4");
 }
 
