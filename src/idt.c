@@ -21,6 +21,25 @@ void init_idt(){
     putInt((u32)&idt_ptr);
     puts(" ");
     putInt(idt_ptr.base);
+    
+    // init 8259A
+    outb(PIC1, ICW1_M); 
+    outb(PIC2, ICW1_S);
+    
+    // init interrupt vector 
+    outb(PIC1, 0x20);
+    outb(PIC2, 0x28);
+
+    // init cascade line
+    outb(PIC1, ICW3_M);
+    outb(PIC2, ICW3_S);
+
+    // init 8086 mode
+    outb(PIC1, ICW4_M);
+    outb(PIC2, ICW4_S);
+
+    outb(PIC1, 0x0);
+    outb(PIC2, 0x0);
 
     u32 selector = 0x08;
     idt_set_gate( 0, (u32)isr0 , selector, 0x8E);
@@ -55,6 +74,24 @@ void init_idt(){
     idt_set_gate(29, (u32)isr29, selector, 0x8E);
     idt_set_gate(30, (u32)isr30, selector, 0x8E);
     idt_set_gate(31, (u32)isr31, selector, 0x8E);
+    
+    idt_set_gate( 0, (u32)irq0 , selector, 0x8E);
+    idt_set_gate( 1, (u32)irq1 , selector, 0x8E);
+    idt_set_gate( 2, (u32)irq2 , selector, 0x8E);
+    idt_set_gate( 3, (u32)irq3 , selector, 0x8E);
+    idt_set_gate( 4, (u32)irq4 , selector, 0x8E);
+    idt_set_gate( 5, (u32)irq5 , selector, 0x8E);
+    idt_set_gate( 6, (u32)irq6 , selector, 0x8E);
+    idt_set_gate( 7, (u32)irq7 , selector, 0x8E);
+    idt_set_gate( 8, (u32)irq8 , selector, 0x8E);
+    idt_set_gate( 9, (u32)irq9 , selector, 0x8E);
+    idt_set_gate(10, (u32)irq10, selector, 0x8E);
+    idt_set_gate(11, (u32)irq11, selector, 0x8E);
+    idt_set_gate(12, (u32)irq12, selector, 0x8E);
+    idt_set_gate(13, (u32)irq13, selector, 0x8E);
+    idt_set_gate(14, (u32)irq14, selector, 0x8E);
+    idt_set_gate(15, (u32)irq15, selector, 0x8E);
+
     puts("\r\nidt init table success");
     idt_flush((u32)&idt_ptr);
     puts("\r\nlidt execute success ");

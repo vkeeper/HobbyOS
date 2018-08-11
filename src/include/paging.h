@@ -10,17 +10,17 @@ typedef struct page{
     u32 dirty;
     u32 unused;
     u32 frame;
-} page_t;
+} __attribute__((packed)) page_t;
 
 typedef struct page_table{
     page_t pages[1024];
-} page_table_t;
+} __attribute__((packed)) page_table_t;
 
 typedef struct page_directory{
     page_table_t *tables[1024];
     u32 tablesPhysical[1024];
     u32 physicalAddr;
-} page_directory_t;
+}__attribute__((packed)) page_directory_t;
 
 void set_frame(u32 frame_addr);
 

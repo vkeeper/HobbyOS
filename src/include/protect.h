@@ -4,7 +4,7 @@ typedef struct gate_descriptor{
     u_int8_t  zeros;
     u_int8_t  attr;
     u_int16_t offset_h;
-}
+}__attribute__((packed)) ; 
 
 typedef struct global_descriptor{
     u_int16_t limit_l;
@@ -13,7 +13,7 @@ typedef struct global_descriptor{
     u_int8_t  attr;			/* P(1) DPL(2) DT(1) TYPE(4) */
 	u_int8_t  limit_high_attr2;	/* G(1) D(1) 0(1) AVL(1) LimitHigh(4) */
     u_int8_t  base_h;
-}
+}__attribute__((packed)) ;
 
 /* 描述符类型值说明 */
 #define	DA_32			0x4000	/* 32 位段				*/

@@ -110,9 +110,6 @@ global idt_flush
 idt_flush:
 	mov eax, [esp+4]
 	lidt [eax]
-	mov esi, idtStr
-	mov edi, 0x0 
-	call printByGS
 	ret
 
 idtStr: db "success flush idt"

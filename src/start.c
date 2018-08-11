@@ -30,9 +30,7 @@ u64 getPhysicalMemory(){
         putInt(item->base);
         putc(' ');
 
-        putInt(item->limit);
-        puts("\r\n");
-
+        putInt(item->limit); puts("\r\n"); 
         switch(item->type){
             case 1: 
                //puts("Avaliable\r\n"); 

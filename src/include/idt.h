@@ -1,6 +1,25 @@
 #ifndef IDT_H
 #define IDT_H
 
+#define PIC1            0x20
+#define PIC2            0xA0
+#define PIC1_COMMAND    PIC1
+#define PIC1_DATA       (PIC1+1)
+#define PIC2_COMMAND    PIC2
+#define PIC2_DATA       (PIC2+1)
+
+#define INT_VECTOR_IRQ0     32
+#define INT_VECTOR_IRQ8     INT_VECTOR_IRQ0+8
+
+#define ICW1_M            0x11
+#define ICW1_S            0x11
+#define ICW2_M            INT_VECTOR_IRQ0
+#define ICW2_S            INT_VECTOR_IRQ8
+#define ICW3_M            0x4
+#define ICW3_S            0x2
+#define ICW4_M            0x1
+#define ICW4_S            0x1
+
 typedef struct idt_entry{
     u16 base_low;
     u16 selector;
@@ -14,32 +33,25 @@ typedef struct idt_ptr{
     u32 base;
 }__attribute__((packed)) idt_ptr_t; 
 
-typedef struct pt_regs {
-    u32 ds;
-    u32 edi;
-    u32 esi;
-    u32 ebp;
-    u32 esp;
-    u32 ebx;
-    u32 edx;
-    u32 ecx;
-    u32 eax;
-    u32 int_no;
-    u32 err_code;
-    u32 eip;
-    u32 cs;
-    u32 eflags;
-    u32 useresp;
-    u32 ss;
-} pt_regs_t;
-
-typedef void (*interrupt_handler_t)(pt_regs_t *);
-
-void register_interrupt_handler(u8 n, interrupt_handler_t h);
-
-void isr_handler(pt_regs_t *regs);
 
 void init_idt();
+
+#define IRQ0    32
+#define IRQ0    33
+#define IRQ0    34
+#define IRQ0    35
+#define IRQ0    36
+#define IRQ0    37
+#define IRQ0    38
+#define IRQ0    39
+#define IRQ0    40
+#define IRQ0    41
+#define IRQ0    42
+#define IRQ0    43
+#define IRQ0    44
+#define IRQ0    45
+#define IRQ0    46
+#define IRQ0    47
 
 extern void isr0 ();
 extern void isr1 ();
@@ -73,6 +85,23 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
 
 void isr255();
 
