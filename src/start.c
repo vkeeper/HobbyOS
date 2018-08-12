@@ -2,6 +2,7 @@
 #include "print.h"
 #include "mm.h"
 #include "idt.h"
+#include "timer.h"
 
 // #pragma pack(1)
 typedef struct{
@@ -115,5 +116,8 @@ void cmain(){
     init_idt();
     asm volatile ("int $0x3");
     asm volatile ("int $0x4");
+
+    asm volatile ("sti");
+    init_timer(100);
 }
 

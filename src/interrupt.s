@@ -88,14 +88,8 @@ isr_common_stub:
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
-	mov ss, ax
-
-	mov ax, 0x18
-	mov gs, ax
 	
-	push esp
 	call isr_handler
-	add esp, 4
 
 	pop ebx
 	mov ds, bx
@@ -117,10 +111,6 @@ irq_common_stub:
     mov ds, ax
     mov es, ax
     mov fs, ax
-    mov ss, ax
-
-    mov ax, 0x18
-    mov gs, ax
 
     call irq_handler
 
@@ -131,5 +121,6 @@ irq_common_stub:
 
     popa
     add esp, 8
+    ;hlt
     sti
     iret

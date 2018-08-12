@@ -72,8 +72,8 @@ memCheckError: dw "check memory map error!",0
 
 ;------------------------- Global Descriptor Init ------------------------
 LabelGDT:			Descriptor  0,          0,              0
-LabelDescCode32:    Descriptor  0,          0xFFFFFFFF,        DA_32|DA_C
-LabelDescData:      Descriptor  0,          0xFFFFFFFF,        DA_32|DA_DRW|DA_DPL0
+LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
+LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW|DA_DPL0
 LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
 
 GdtPtr: dw  $-LabelGDT-1
@@ -102,7 +102,7 @@ Seg32Entry:
 
     extern cmain
     call cmain
-    hlt
+    jmp $
 
 
 
@@ -112,24 +112,24 @@ idt_flush:
 	lidt [eax]
 	ret
 
-idtStr: db "success flush idt"
+;idtStr: db "success flush idt"
 ;--------------------------------------------
-printByGS:
-    xor eax, eax 
-    mov ah, 0x0F
-    .loopShow:
-        mov byte al, [esi]
-        xor al, 0
-        jz printByGSEnd 
-        inc esi 
+;printByGS:
+;    xor eax, eax 
+;    mov ah, 0x0F
+;    .loopShow:
+;        mov byte al, [esi]
+;        xor al, 0
+;        jz printByGSEnd 
+;        inc esi 
  
-        mov word [gs:edi], ax
-        inc edi 
-        inc edi 
-        jmp .loopShow
+;        mov word [gs:edi], ax
+;        inc edi 
+;        inc edi 
+;        jmp .loopShow
 
-printByGSEnd:
-    ret
+;printByGSEnd:
+;    ret
 
 ;--------------------------------------------
 
