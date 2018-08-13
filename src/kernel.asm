@@ -97,8 +97,8 @@ Seg32Entry:
     mov gs, ax
 
     ; --- init stack --- 
-	mov ebp, 0x80000
-	mov esp, 0x9FBFF
+	;mov ebp, 0x60000
+;	mov esp, 0x9F000
 
     extern cmain
     call cmain

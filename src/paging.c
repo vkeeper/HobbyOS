@@ -9,34 +9,36 @@ u32 nframes; // num of frame
 page_directory_t *kernel_directory = 0;
 page_directory_t *current_directory = 0;
 
-#define NO_FRAME = -1
+extern u32 placement_address;
+
+#define NO_FRAME  -1
 #define INDEX_OF(a) (a/32)
 #define OFFSET_OF(a) (a%32)
 
-void set_frame(u32 frame_addr){
+static void set_frame(u32 frame_addr){
     u32 frame = frame_addr / 0x1000;
     u32 idx = INDEX_OF(frame);
     u32 off = OFFSET_OF(frame);
-    frames[idx] |= (0x1 << off)
+    frames[idx] |= (0x1 << off);
 }
 
-void clear_frame(u32 frame_addr){
+static void clear_frame(u32 frame_addr){
     u32 frame = frame_addr / 0x1000;
     u32 idx = INDEX_OF(frame);
     u32 off = OFFSET_OF(frame);
     frames[idx] &= ~(0x1 << off);
 }
 
-u32 test_frame(u32 frame_addr){
+static u32 test_frame(u32 frame_addr){
     u32 frame = frame_addr / 0x1000;
     u32 idx = INDEX_OF(frame);
     u32 off = OFFSET_OF(frame);
     return (frames[idx] & (0x1 << off)); 
 }
 
-u32 first_frame(){
+static u32 first_frame(){
     u32 i, j;
-    for(i = 0; i < INDEX_FROM(nframes); i++){
+    for(i = 0; i < INDEX_OF(nframes); i++){
         if(frames[i] != 0xFFFFFFFF){
             for(j = 0; j < 32; j++){
                 u32 test = 0x1 << j;
@@ -46,19 +48,18 @@ u32 first_frame(){
             }
         }
     }
-    return NO_FRAME:
+    return NO_FRAME;
 }
 
 
-void init_paging(){
-    u32 max = 0x10000000;
+void init_paging(u64 memory){
+    u32 max = 0x1000000;
+
     nframes = max / 0x1000;
+    frames = (u32 *)kmalloc_a(INDEX_OF(nframes));
+    memset(frames, 0, INDEX_OF(nframes));
 
-    frames = (u32 *)kmalloc(INDEX_FROM(nframes));
-    memset(frames, 0, INDEX_FROM(nframes));
-
-    kernel_directory = (page_directory_t *)kmalloc(sizeof(page_directory_t));
-    memset(directory, 0, sizeof(page_directory_t));
+    kernel_directory = (page_directory_t *)kmalloc_a(sizeof(page_directory_t));
     current_directory = kernel_directory;
 
     u32 i = 0;
@@ -66,19 +67,29 @@ void init_paging(){
         alloc_frame(get_page(i, 1, kernel_directory), 0, 0);
         i += 0x1000;
     }
-    // register_interrupt_handler(14, page_fault);
+
+    register_interrupt_handler(14, page_fault);
+
     switch_page_directory(kernel_directory);
+    puts("\r\nenable page memory management success!");
 }
 
-void switch_page_directory(page_directory_t *new){
-    current_directory = new;
-    asm volatile ("mov %0, %%cr3" :: "r"(&dir->tablesPhysical));
+void page_fault(registers_t regs){
+    puts("\r\npage fault happened");
+}
 
+void switch_page_directory(page_directory_t *dir){
+    current_directory = dir;
+    asm volatile("mov %0, %%cr3":: "r"(&dir->tablesPhysical));
     u32 cr0;
-    asm volatile ("mov %%cr0, %0" : "=r"(cr0));
-
+    asm volatile("mov %%cr0, %0": "=r"(cr0));
     cr0 |= 0x80000000;
-    asm volatile ("mov %0, %%cr0" :: "r"(cr0));
+    asm volatile("mov %0, %%cr0":: "r"(cr0));
+
+    /*
+    write_cr3(&dir->tablesPhysical);
+    write_cr0(read_cr0()|0x80000000);
+    */
     puts("\r\n enable paging success!");
 }
 
@@ -91,12 +102,12 @@ page_t *get_page(u32 address, int make, page_directory_t *dir){
 
     if(make){
         u32 temp;
-        dir->tables[table_idx] = (page_table_t *)kmalloc(sizeof(page_table_t), &temp);
-        memset(dir->tables[table_idx], 0, 0x1000);
-        dir->tablesPhysical[table_idx] = tmep | 0x7;
+        dir->tables[table_idx] = (page_table_t *)kmalloc_ap(sizeof(page_table_t), &temp);
+        dir->tablesPhysical[table_idx] = temp | 0x7;
         return &dir->tables[table_idx]->pages[address%1024];
     }
 
+    puts("\r\n get page failed");
     return 0;
 }
 
@@ -122,7 +133,7 @@ void free_frame(page_t *page){
     if(!(frame=page->frame)){
         return;
     }else{
-        clear_frame(frame*0x1000);
+        clear_frame(frame);
         page->frame = 0;
     }
 }

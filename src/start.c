@@ -3,6 +3,7 @@
 #include "mm.h"
 #include "idt.h"
 #include "timer.h"
+#include "paging.h"
 
 // #pragma pack(1)
 typedef struct{
@@ -81,43 +82,26 @@ void enablePaging(u64 total){
 
     pageDir[0]=pageTable;
     pageDir[0]=pageDir[0]|3;
-    puts("\r\ntotal page dir ");
-    putInt(pageDirCount);
+
     for(i=1;i<pageDirCount;i++){
         pageDir[i]=0|2;
     }
     write_cr3(pageDir);
     write_cr0(read_cr0()|0x80000000);
-    puts("\r\nenable page memory success");
-    puts("\r\nkern_start:");
-    putInt(kern_start);
-    puts("\r\nkern_end:");
-    putInt(kern_end);
 }
 */
 
 void cmain(){
     u64 mem = getPhysicalMemory();    
-    u32 *hello = kmalloc_a(12);
-    memset(hello, 3, 12);
-    puts("\r\nalloc success at");
-    putInt(hello);
-
-    u32 *word = kmalloc_a(12);
-    memset(word, 5, 12);
-    puts("\r\nalloc success at ");
-    putInt(word);
-    puts("\r\n");
-    u32 i = 0;
-    while(word[i]!=0){
-        putInt(word[i++]);
-    }
     //enablePaging(mem);
     init_idt();
     asm volatile ("int $0x3");
     asm volatile ("int $0x4");
 
+    init_paging(mem);
+    /**
     asm volatile ("sti");
     init_timer(100);
+    */
 }
 

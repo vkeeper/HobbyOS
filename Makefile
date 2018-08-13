@@ -9,7 +9,7 @@ LDFLAGS			= 	-m elf_i386 -static -e _start	--oformat binary -T script/link.ld
 
 TARGETDIR		= target/
 
-C_OBJECTS		=	target/start.o target/idt.o target/isr.o target/common.o target/mm.o target/print.o target/timer.o
+C_OBJECTS		=	target/start.o target/idt.o target/isr.o target/common.o target/mm.o target/print.o target/timer.o target/paging.o
 
 boot: src/boot.asm
 	$(ASM)	$(ASMFLAGS)	-o target/boot.bin $< 
@@ -19,6 +19,9 @@ kernel.o: src/kernel.asm
 
 interrupt.o: src/interrupt.s
 	$(ASM) $(ASMLINKFLAGS) -o target/interrupt.o $<
+
+paging.o: src/paging.c
+	$(CC) $(CFLAGS) $< -o target/paging.o
 
 idt.o: src/idt.c
 	$(CC) $(CFLAGS) $< -o target/idt.o
@@ -41,7 +44,7 @@ common.o: src/common.c
 start.o: src/start.c
 	$(CC) $(CFLAGS) $< -o target/start.o
 
-kernel: kernel.o start.o idt.o isr.o interrupt.o print.o common.o mm.o timer.o
+kernel: kernel.o start.o idt.o isr.o interrupt.o print.o common.o mm.o timer.o paging.o
 	$(LD) $(LDFLAGS) target/kernel.o target/interrupt.o  $(C_OBJECTS) -o target/kernel.bin
 
 img: boot kernel

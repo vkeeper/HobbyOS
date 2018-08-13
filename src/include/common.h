@@ -11,6 +11,12 @@ typedef u_int64_t u64;
 extern u8 kern_start[];
 extern u8 kern_end[];
 
+extern u64 read_cr3();
+extern void write_cr3(u32 v);
+
+extern u64  read_cr0();
+extern void write_cr0();
+
 void outb(u16 port, u8 value);
 
 u8 inb(u16 port);
