@@ -36,10 +36,8 @@ void putc(u8 c){
     u8 color = 0x0F;
     u16 value = color<<8|c;
     if(c == '\r'){
-//        dispPos = dispPos - (((unsigned int)dispPos%160)-64);
         cursor_x = 0;
     }else if(c == '\n'){
-//        dispPos += 160;
         cursor_y++;
     }else if(c >= ' '){
         u16 *addr;
@@ -78,4 +76,17 @@ void puts(u8* value){
     while((c=*str++)!=0){
         putc(c);
     }
+}
+
+
+void clear_screen(){
+    u8 attr = (0 << 4) | (15 & 0x0F);
+    u16 blank = 0x20 | (attr << 8);
+    int i;
+    for(i = 0; i<25*80;i++){
+        dispPos[i] = blank; 
+    }
+    cursor_x = 0;
+    cursor_y = 0;
+    move_cursor();
 }

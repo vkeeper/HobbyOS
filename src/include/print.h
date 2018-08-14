@@ -11,4 +11,6 @@ void putByte(u8 byte);
 
 void putInt(u32 integer);
 
+void clear_screen();
+
 #endif

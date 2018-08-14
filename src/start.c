@@ -60,48 +60,19 @@ u64 getPhysicalMemory(){
     puts(" MB");
     return max;
 }
-/*
-void enablePaging(u64 total){
-    u32 pageCount = total / 4096;
-    puts("\r\ntotal page num ");
-    putInt(pageCount);
 
-    u32 *pageDir =(u32 *)0x2000;
-    u32 *pageTable = (u32 *)0x3000;
-    u32 offset = 0;
-    u32 i=0;
-    for(;i<1024;i++){
-        pageTable[i]=offset|3;
-        offset += 4096;
-    }
-
-    u32 pageDirCount = pageCount/1024;
-    if(pageCount%1024!=0){
-        pageDirCount +=1;
-    }
-
-    pageDir[0]=pageTable;
-    pageDir[0]=pageDir[0]|3;
-
-    for(i=1;i<pageDirCount;i++){
-        pageDir[i]=0|2;
-    }
-    write_cr3(pageDir);
-    write_cr0(read_cr0()|0x80000000);
-}
-*/
 
 void cmain(){
-    u64 mem = getPhysicalMemory();    
-    //enablePaging(mem);
     init_idt();
     asm volatile ("int $0x3");
     asm volatile ("int $0x4");
 
-    init_paging(mem);
-    /**
-    asm volatile ("sti");
-    init_timer(100);
-    */
-}
+    u64 mem = getPhysicalMemory();    
 
+    init_paging(mem);
+    //puts("\r\npaging success!");
+    asm volatile ("hlt");
+    
+    //asm volatile ("sti");
+    //init_timer(100);
+}

@@ -9,7 +9,7 @@ u32 kmalloc_int(u32 size, u32 align, u32 *phys){
         placement_address += 0x1000;
     }
 
-    if(*phys){
+    if(phys){
         *phys = placement_address;
     }
     u32 temp = placement_address;

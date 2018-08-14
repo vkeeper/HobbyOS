@@ -73,7 +73,7 @@ memCheckError: dw "check memory map error!",0
 ;------------------------- Global Descriptor Init ------------------------
 LabelGDT:			Descriptor  0,          0,              0
 LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
-LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW|DA_DPL0
+LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW
 LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
 
 GdtPtr: dw  $-LabelGDT-1
@@ -102,7 +102,7 @@ Seg32Entry:
 
     extern cmain
     call cmain
-    jmp $
+	hlt
 
 
 
