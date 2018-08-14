@@ -76,7 +76,21 @@ void init_paging(u64 memory){
 }
 
 void page_fault(registers_t regs){
+    u32 fault_addr;
+    asm volatile ("mov %%cr2, %0" : "=r"(fault_addr));
+    int present = !(regs.err_code & 0x1);
+    int rw      = regs.err_code & 0x2;
+    int us      = regs.err_code & 0x4;
+    int reserved= regs.err_code & 0x8;
+    int id      = regs.err_code & 0x10;
+
     puts("\r\npage fault happened");
+    if(present){ puts(" present"); }
+    if(rw){ puts(" read-only");}
+    if(us){ puts(" user-mode");}
+    if(reserved){ puts(" reserved");}
+    puts(" at 0x");
+    putInt(fault_addr);
 }
 
 void switch_page_directory(page_directory_t *dir){

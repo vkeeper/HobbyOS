@@ -59,12 +59,6 @@ SA_TIL          equ     0x4 ; Local Descriptor
 SDA_FLAT_CODE   equ     DA_32|DA_CR
 SDA_FLAT_DATA   equ     DA_DRW
 
-;--------------------------------------------------------
-; Detect Mem Address
-;--------------------------------------------------------
-MemTableAddr    equ     0x50
-ARDSNum         equ     0x0
-ARDSAddrOffset  equ     ARDSNum + 0x4
 
 ;--------------------------------------------------------
 ; paging memory management

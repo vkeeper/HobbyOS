@@ -2,37 +2,8 @@
 
 [BITS 16]
 kernelEntry:
-    call probeMemory
     call enablePM 
     jmp dword SelectorCode32:Seg32Entry
-
-probeMemory:
-    xor cx, cx
-    xor dx, dx
-    mov ax, MemTableAddr
-    mov es, ax
-    mov di, ARDSAddrOffset
-    mov dword [es:ARDSNum], 0
-    mov ebx, 0
-    .loop:
-        mov edx, 0x534D4150
-        mov eax, 0xE820
-        mov ecx, 20
-        int 0x15
-        jc .fail
-        add di, 20
-        inc dword [es:ARDSNum]
-        or  ebx, ebx 
-        jnz .loop
-        jmp .ok 
-
-    .fail:
-        mov  si, memCheckError
-        call printByInt10
-        cli
-        hlt
-    .ok:
-        ret
 
 enablePM:
     ; fast enable A20
@@ -54,21 +25,6 @@ enablePM:
     or  eax, 1
     mov cr0, eax
     ret
-
-printByInt10:
-     mov al, [si]
-     xor al, 0
-     jz printByInt10End
-     inc si
-     mov bx, 0x000F
-     mov ah, 0xE 
-     int 0x10
-     jmp printByInt10
-
-printByInt10End:
-    ret
-
-memCheckError: dw "check memory map error!",0
 
 ;------------------------- Global Descriptor Init ------------------------
 LabelGDT:			Descriptor  0,          0,              0
@@ -98,40 +54,19 @@ Seg32Entry:
 
     ; --- init stack --- 
 	;mov ebp, 0x60000
-;	mov esp, 0x9F000
+    ;mov esp, 0x9F000
 
     extern cmain
     call cmain
 	hlt
 
 
-
+;--------------------------------------------
 global idt_flush
 idt_flush:
 	mov eax, [esp+4]
 	lidt [eax]
 	ret
-
-;idtStr: db "success flush idt"
-;--------------------------------------------
-;printByGS:
-;    xor eax, eax 
-;    mov ah, 0x0F
-;    .loopShow:
-;        mov byte al, [esi]
-;        xor al, 0
-;        jz printByGSEnd 
-;        inc esi 
- 
-;        mov word [gs:edi], ax
-;        inc edi 
-;        inc edi 
-;        jmp .loopShow
-
-;printByGSEnd:
-;    ret
-
-;--------------------------------------------
 
 global read_cr0
 global write_cr0

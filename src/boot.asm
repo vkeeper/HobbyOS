@@ -28,6 +28,48 @@ initSeg:
     mov ss, ax
     ret
 
+probeMemory:
+    xor cx, cx
+    xor dx, dx
+    mov ax, MemTableAddr
+    mov es, ax
+    mov di, ARDSAddrOffset
+    mov dword [es:ARDSNum], 0
+    mov ebx, 0
+    .loop:
+        mov edx, 0x534D4150
+        mov eax, 0xE820
+        mov ecx, 20
+        int 0x15
+        jc .fail
+        add di, 20
+        inc dword [es:ARDSNum]
+        or  ebx, ebx 
+        jnz .loop
+        jmp .ok 
+
+    .fail:
+        mov  si, memCheckError
+        call printByInt10
+        cli
+        hlt
+    .ok:
+        ret
+
+printByInt10:
+     mov al, [si]
+     xor al, 0
+     jz printByInt10End
+     inc si
+     mov bx, 0x000F
+     mov ah, 0xE 
+     int 0x10
+     jmp printByInt10
+
+printByInt10End:
+    ret
+
+memCheckError: dw "check memory map error!",0
 loadDisk:
 	xor ax, ax
 	mov ax, 0x900
@@ -46,14 +88,8 @@ loadDisk:
 error:
     mov si, errorMsg
     call printStr
-    call newLine
     hlt
     jmp $
-
-newLine:
-    mov si, newLineStr
-    call printStr
-    ret
 
 ; param: si = string
 printStr:
@@ -69,9 +105,14 @@ printStr:
 end:
     ret
 
-loadDiskStr: dw "Begin to load kernel from disk",0
+;--------------------------------------------------------
+; Detect Mem Address
+;--------------------------------------------------------
+MemTableAddr    equ     0x50
+ARDSNum         equ     0x0
+ARDSAddrOffset  equ     ARDSNum + 0x4
+
 errorMsg: dw "load disk error!",0
-newLineStr: db 0xD, 0xA
 
 times 510-($-$$) db 0
 dw 0xaa55
