@@ -54,7 +54,7 @@ static u32 first_frame(){
 
 
 void init_paging(u64 memory){
-    u32 max = 0x1000000;
+    u32 max = 0xF0000;
 
     nframes = max / 0x1000;
     frames = (u32 *)kmalloc_a(INDEX_OF(nframes)+1);
@@ -71,8 +71,7 @@ void init_paging(u64 memory){
         limit -= 0x1000;
     }
 
-    register_interrupt_handler(14, page_fault);
-
+    register_interrupt_handler(14, page_fault); 
     switch_page_directory(kernel_directory);
 }
 
@@ -95,14 +94,6 @@ void switch_page_directory(page_directory_t *dir){
 }
 
 page_t *get_page(u32 address, int make, page_directory_t *dir){
-    puts("\r\ngetPage address:dir");
-    putInt(address);
-    putc(' ');
-    putInt(address/0x1000);
-    putc(' ');
-    putInt(address/0x1000/1024);
-    putc(' ');
-    putInt(&dir->tablesPhysical);
     address /= 0x1000;
     u32 table_idx = address / 1024;
     if(dir->tables[table_idx]){

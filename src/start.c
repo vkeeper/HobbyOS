@@ -70,7 +70,9 @@ void cmain(){
     u64 mem = getPhysicalMemory();    
 
     init_paging(mem);
-    //puts("\r\npaging success!");
+    puts("\r\npaging success!");
+    u32 *ptr = (u32*)0xFF000;
+    u32 do_page_fault = *ptr;
     asm volatile ("hlt");
     
     //asm volatile ("sti");

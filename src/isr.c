@@ -4,10 +4,21 @@
 isr_t interrupt_handlers[256];
 
 void isr_handler(registers_t regs){
-    puts("\r\nreceived interrupts:");
+    /*
+    puts("\r\nunhandled interrupts:");
     putInt(regs.err_code);
     puts(" ");
     putInt(regs.int_no);
+    */
+    if(interrupt_handlers[regs.int_no]!=0){
+        isr_t handler = interrupt_handlers[regs.int_no];
+        handler(regs);
+    }else{
+        puts("\r\nunhandled interrupts:");
+        putInt(regs.err_code);
+        puts(" ");
+        putInt(regs.int_no);
+    }
 }
 
 void irq_handler(registers_t regs){
