@@ -3,6 +3,7 @@ org 0x7C00
 main:
     call clearScreen
     call initSeg
+    call probeMemory
     call loadDisk    
 	jmp 0x900:0
 
