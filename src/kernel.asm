@@ -1,5 +1,6 @@
 %include "protect.inc"
 
+section .init.text
 [BITS 16]
 kernelEntry:
     call enablePM 
@@ -41,7 +42,6 @@ SelectorVideo   equ     LabelDescVideo  - LabelGDT
 ;---------------------------------------------------------------------------
 
 
-[SECTION .text]
 [BITS 32]
 Seg32Entry:
     ; --- init segment register ---

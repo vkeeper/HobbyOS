@@ -88,23 +88,10 @@ loadDisk:
 
 error:
     mov si, errorMsg
-    call printStr
+    call printByInt10 
     hlt
     jmp $
 
-; param: si = string
-printStr:
-    mov al, [si]
-    xor al, 0
-    jz end
-    inc si
-    mov bx, 0x000F
-    mov ah, 0xE
-    int 0x10
-    jmp printStr
-
-end:
-    ret
 
 ;--------------------------------------------------------
 ; Detect Mem Address
