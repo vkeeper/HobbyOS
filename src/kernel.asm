@@ -29,8 +29,8 @@ enablePM:
 
 ;------------------------- Global Descriptor Init ------------------------
 LabelGDT:			Descriptor  0,          0,              0
-LabelDescCode32:    Descriptor  0,          0xFFFFF,        DA_32|DA_C
-LabelDescData:      Descriptor  0,          0xFFFFF,        DA_32|DA_DRW
+LabelDescCode32:    Descriptor  0,          0xFFFFF,        SDA_FLAT_CODE 
+LabelDescData:      Descriptor  0,          0xFFFFF,        SDA_FLAT_DATA
 LabelDescVideo:     Descriptor  0xB8000,    0x0FFFF,        DA_DRW
 
 GdtPtr: dw  $-LabelGDT-1

@@ -19,6 +19,7 @@
 ; Segment Descriptor Attribute
 ;--------------------------------------------------------
 
+DA_G      equ     0x8000
 DA_32     equ     0x4000
 DA_DPL0   equ     0
 DA_DPL1   equ     0x20
@@ -56,8 +57,8 @@ SA_TIG          equ     0x0
 SA_TIL          equ     0x4 ; Local Descriptor
 
 
-SDA_FLAT_CODE   equ     DA_32|DA_CR
-SDA_FLAT_DATA   equ     DA_DRW
+SDA_FLAT_CODE   equ     DA_32|DA_CR|DA_G
+SDA_FLAT_DATA   equ     DA_DRW|DA_G
 
 
 ;--------------------------------------------------------

@@ -96,7 +96,7 @@ error:
 ;--------------------------------------------------------
 ; Detect Mem Address
 ;--------------------------------------------------------
-MemTableAddr    equ     0x50
+MemTableAddr    equ     0x2000
 ARDSNum         equ     0x0
 ARDSAddrOffset  equ     ARDSNum + 0x4
 
