@@ -8,12 +8,10 @@
 
 #define STACK_SIZE 2048
 
-__attribute__((section(".init.data"))) u32 *tables_temp = (u32 *)0x000;
+__attribute__((section(".init.data"))) u32 *tables_temp = (u32 *)0x3000;
 __attribute__((section(".init.data"))) u32 *tables = (u32 *)0x4000;
 
 __attribute__((section(".init.data"))) u32 *dir =(u32 *)0x2000;
-
-//u8 kern_stack[STACK_SIZE];
 
 __attribute__((section(".init.text"))) void cmain(){
     /**
@@ -32,16 +30,15 @@ __attribute__((section(".init.text"))) void cmain(){
     u32 table_idx = frame_num/1024;
     dir[table_idx] = (u32)tables|0x3;
 
-
+    /**
     asm volatile("mov %0, %%cr3" :: "r"(dir));
     u32 cr0;
     asm volatile("mov %%cr0, %0" : "=r"(cr0));
     cr0 |= 0x80000000;
     asm volatile("mov %0, %%cr0" :: "r"(cr0));
-    /**
+    */
     write_cr3(dir);
     write_cr0(read_cr0()|0x80000000);
-    */
     kern_entry();
 }
 
@@ -49,17 +46,17 @@ void kern_entry(){
     init_idt();
     asm volatile ("int $0x3");
     asm volatile ("int $0x4");
-    u64 mem = getPhysicalMemory();    
-    asm volatile ("hlt");
 
-    // TODO 
-    init_paging(mem);
-    puts("\r\npaging success!");
-    u32 *ptr = (u32*)0xFF000;
-    u32 do_page_fault = *ptr;
-    
-/**
+    /*
     asm volatile ("sti");
     init_timer(100);
-*/
+    */
+
+    u64 mem = getPhysicalMemory();    
+    init_paging(mem);
+    puts("\r\npaging success!");
+    asm volatile ("hlt");
+//    u32 *ptr = (u32*)0xFF000;
+//    u32 do_page_fault = *ptr;
+    
 }

@@ -2,6 +2,10 @@
 #define PAGING_H
 #include "isr.h"
 #include "common.h"
+
+#define PAGE_OFFSET 0xC0000000
+#define PD_INDEX(addr)(addr/0x1000/1024)
+
 typedef struct page{
     u32 present     :1;
     u32 rw          :1;
