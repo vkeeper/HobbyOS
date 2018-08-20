@@ -1,7 +1,7 @@
 #include "mem_layout.h"
 
 u64 getPhysicalMemory(){
-    BootParam* bp = (BootParam*)0xC0020000;
+    BootParam* bp = (BootParam*)0x20000;
     u32 bplen = bp->len;
     u64 max = 0;
     

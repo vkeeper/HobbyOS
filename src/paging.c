@@ -55,17 +55,22 @@ static u32 first_frame(){
 
 void init_paging(u64 memory){
     u32 max = memory;
+    max = 0xF0000;    
+    // init frame
     nframes = max / 0x1000;
-    frames = (u32 *)(kmalloc_a(INDEX_OF(nframes)+1)-0xC0000000);
+    frames = (u32 *)(kmalloc_a(INDEX_OF(nframes)+1));
     memset(frames, 0, INDEX_OF(nframes)+1);
 
-    kernel_directory = (page_directory_t *)(kmalloc_a(sizeof(page_directory_t))-0xC0000000);
+    // init page directory
+    kernel_directory = (page_directory_t *)(kmalloc_a(sizeof(page_directory_t)));
     current_directory = kernel_directory;
 
+    // init table
     u32 limit = max;
     u32 i = 0;
     while(limit > 0){
-        alloc_frame(get_page(i, 1, kernel_directory), 0, 1);
+        page_t *page = get_page(i, 1, kernel_directory);
+        alloc_frame(page, 0, 1);
         i += 0x1000;
         limit -= 0x1000;
     }
@@ -104,7 +109,6 @@ void switch_page_directory(page_directory_t *dir){
     puts("\r\ncurrent_dir = ");
     putInt(&dir->tablesPhysical);
     write_cr3(&dir->tablesPhysical);
-    asm volatile ("hlt");
 }
 
 page_t *get_page(u32 address, int make, page_directory_t *dir){
@@ -116,8 +120,8 @@ page_t *get_page(u32 address, int make, page_directory_t *dir){
 
     if(make){
         u32 temp;
-        dir->tables[table_idx] = (page_table_t *)(kmalloc_ap(sizeof(page_table_t), &temp)-0xC0000000);
-        dir->tablesPhysical[table_idx] = (temp-0xC0000000) | 0x3;
+        dir->tables[table_idx] = (page_table_t *)(kmalloc_ap(sizeof(page_table_t), &temp));
+        dir->tablesPhysical[table_idx] = (temp) | 0x3;
         return &dir->tables[table_idx]->pages[address%1024];
     }
 

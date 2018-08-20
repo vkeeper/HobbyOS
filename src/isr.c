@@ -34,5 +34,9 @@ void irq_handler(registers_t regs){
 }
 
 void register_interrupt_handler(u8 n, isr_t handler){
+    puts("\r\nregister interrupt handler");
+    putInt(n);
+    putc(' ');
+    putInt(&handler);
     interrupt_handlers[n] = handler;
 }
