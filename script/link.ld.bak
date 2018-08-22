@@ -1,6 +1,6 @@
 SECTIONS
 {
-    PROVIDE( kern_start = .);
+    PROVIDE( kern_start = 0xC0009000);
     . = 0x9000;
 
     .init.text :
@@ -13,28 +13,29 @@ SECTIONS
         *(.init.data)
     }
 
-    .text : 
+    . += 0xC0000000;
+    .text : AT(ADDR(.text) - 0xC0000000)
     { 
         *(.text*) 
     }
 
-    .data : 
+    .data : AT(ADDR(.data) - 0xC0000000)
     {
         *(.data) 
         *(.rodata*)
     }
 
-    .bss : 
+    .bss : AT(ADDR(.bss) - 0xC0000000)
     {
         *(.bss)
         *(COMMON)
     }
-    .stab : 
+    .stab : AT(ADDR(.stab) - 0xC0000000)
     {
         *(.stab)
     }
 
-    .stabstr : 
+    .stabstr : AT(ADDR(.stabstr) - 0xC0000000)
     {
         *(.stabstr)
     }

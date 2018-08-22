@@ -23,7 +23,7 @@ interrupt.o: src/interrupt.s
 mem_layout.o: src/mem_layout.c
 	$(CC) $(CFLAGS) $< -o target/mem_layout.o
 
-paging.o: src/paging2.c
+paging.o: src/paging.c
 	$(CC) $(CFLAGS) $< -o target/paging.o
 
 idt.o: src/idt.c

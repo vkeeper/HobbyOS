@@ -3,7 +3,6 @@
 #include "mm.h"
 #include "idt.h"
 #include "timer.h"
-#include "paging2.h"
 #include "mem_layout.h"
 
 __attribute__((section(".init.data"))) u32 *tables_temp =(u32*)0x3000;
@@ -31,28 +30,12 @@ __attribute__((section(".init.text"))) void cmain(){
 }
 
 void kern_entry(){
-    puts("\r\nenable vmm start");
-    init_vmm();
-
     init_idt();
     asm volatile ("int $0x3");
     asm volatile ("int $0x4");
 
     u64 mem = getPhysicalMemory();    
-    init_pmm(mem);
-    
-    puts("\r\npaging success!");
-    u32 addr = alloc_page();
-    puts("\r\nsuccess alloc page ");
-    putInt(addr);
-
-    addr = alloc_page();
-    puts("\r\nsuccess alloc page ");
-    putInt(addr);
-
-    addr = alloc_page();
-    puts("\r\nsuccess alloc page ");
-    putInt(addr);
+    init_paging(mem);
 /*
     u32 *ptr = (u32*)0xDFF0000;
     u32 do_page_fault = *ptr;

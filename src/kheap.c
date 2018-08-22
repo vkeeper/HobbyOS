@@ -30,3 +30,12 @@ static u32 find_smalleset_hol(u32 size, u8 page_align, heap_t *heap){
         return itr;
     }
 }
+
+static u8 header_t_less_than(void *a, void *b){
+    return (((header_t*)a)->size < ((header_t*)b)->size)?1:0;
+}
+
+heap_t *create_heap(u32 start, u32 end, u32 max, u8 user, u8 readonly){
+        
+}
+
