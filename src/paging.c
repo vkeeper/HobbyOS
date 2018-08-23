@@ -55,7 +55,7 @@ static u32 first_frame(){
 
 void init_paging(u64 memory){
     u32 max = memory;
-    max = 0xF0000;    
+//    max = 0xF0000;    
     // init frame
     nframes = max / 0x1000;
     frames = (u32 *)(kmalloc_a(INDEX_OF(nframes)+1));
