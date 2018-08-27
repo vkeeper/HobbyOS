@@ -1,28 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct list_node{
-    struct list_node *next;
-    struct list_node *prev;
-    void *data;
-} list_node_t;
-
-typedef struct list{
-    struct list_node *head;
-    struct list_node *tail;
-    int size;
-} list_t;
-
-list_t* init_list();
-
-void destory_list(list_t *origin);
-
-int list_size(list_t *list);
-
-void remove_data(list_t *list, int index);
-
-void add_data(list_t *list, void *data);
-
+#include "list.h"
 
 list_t* init_list(){
     list_t *list = (list_t*)malloc(sizeof(list_t));
@@ -85,20 +63,6 @@ void remove_data(list_t *list, int index){
 }
 
 
-void add_data(list_t *list, void* data){
-    list_node_t *temp = list->head;
-    list_node_t *r = (list_node_t*)malloc(sizeof(list_node_t));
-    r->data = data;
-    if(NULL == temp){
-        list->head = list->tail = r;
-    }else{
-        list->tail->next = r;
-        r->prev = list->tail;
-        list->tail = r;
-    }
-    list->size++;
-}
-
 void* get(list_t *list, int index){
     if(list->head == NULL){
         printf("list is empty");
@@ -120,7 +84,7 @@ void* get(list_t *list, int index){
 
 void list_print(list_t *list){
     if(list->head == NULL){
-        printf("list is empty");
+        printf("\r\nlist is empty,print failed\r\n");
     }else{
         printf("\r\nlist->size=%d\r\n", list->size);
         list_node_t *node = list->head;
@@ -132,13 +96,76 @@ void list_print(list_t *list){
     }
 }
 
+void add_head(list_t *list, void *data){
+    list_node_t *node = (list_node_t*)malloc(sizeof(list_node_t));
+    if(list->head == NULL){
+        list->head = list->tail = node;
+    }else{
+        node->next = list->head;
+        list->head->prev = node;
+        list->head = node;
+    }
+    list->size++;
+}
+
+
+void add_last(list_t *list, void *data){
+    list_node_t *node = (list_node_t*)malloc(sizeof(list_node_t));
+    node->data = data;
+    if(list->head == NULL){
+        list->head = list->tail = node;
+    }else{
+        node->prev = list->tail;
+        list->tail->next = node;
+        list->tail = node;
+    }
+    list->size++;
+}
+
+void remove_head(list_t *list){
+    if(list->size == 0){
+        printf("\r\nlist is empty, must not remove\r\n");
+        return;
+    }
+
+    list_node_t *h = list->head;
+    list_node_t *node = h->next;
+    if(node == NULL){
+        list->head = list->tail = NULL;
+    }else{
+        node->prev = NULL;
+        list->head = node;
+    }
+    free(h);
+    list->size--;
+}
+
+void remove_last(list_t *list){
+    if(list->size == 0){
+        printf("\r\nlist is empty, must not remove\r\n");
+        return;
+    }
+
+    list_node_t *t = list->tail;
+    list_node_t *node = t->prev;
+    if(node == NULL){
+        list->head = list->tail = NULL;
+    }else{
+        node->next = NULL;
+        list->tail = node;
+    }
+
+    free(t);
+    list->size--;
+}
+
 void main(){
     list_t *list = init_list();
     list_print(list);
 
-    add_data(list, 3);
-    add_data(list, 2);
-    add_data(list, 1);
+    add_last(list, 3);
+    add_last(list, 2);
+    add_last(list, 1);
     list_print(list);
 
     remove_data(list, 1);
